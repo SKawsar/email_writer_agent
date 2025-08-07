@@ -1,6 +1,4 @@
-# pip install sendgrid
-# pip install openai-agents
-
+# pip install sendgrid openai-agents
 from dotenv import load_dotenv
 from agents import Agent, Runner, trace, function_tool
 from typing import Dict
@@ -11,10 +9,12 @@ from sendgrid.helpers.mail import Mail, Email, To, Content
 
 load_dotenv(override=True)
 
+# --------------------- configuration variables ---------------------
 llm_model = "gpt-4o-mini"
 sender_email = os.environ["SENDER_EMAIL"]
 receiver_email = os.environ["RECEIVER_EMAIL"]
 
+# --------------------- instruction prompts -------------------------
 prof_instructions = "You are a sales agent working for idare.ai, \
 a company that provides zero-code predictive analytics solution powered by AI. \
 You write professional, serious cold emails."
@@ -60,6 +60,7 @@ Finally, you use the send_html_email tool to send the email with the subject and
 prompt = ("Send out a cold sales email addressed to Dear CTO Dr. Khairul Chowdhury from Kawsar, Data Scientist "
           "at idare.ai")
 
+# --------------------- Create Agents -------------------------
 prof_sales_agent = Agent(name="Professional Sales Agent",
                          instructions=prof_instructions,
                          model=llm_model)
@@ -80,6 +81,7 @@ html_converter = Agent(name="HTML email body converter",
                        instructions=html_instructions,
                        model=llm_model)
 
+# --------------------- Create Tools -------------------------
 sales_agent_description = "Write a cold sales email"
 prof_sales = prof_sales_agent.as_tool(tool_name="prof_sales_agent",
                                       tool_description=sales_agent_description)
@@ -108,6 +110,7 @@ def send_html_email(subject: str, html_body: str) -> Dict[str, str]:
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+# --------------------- Create Agents -------------------------
 emailer_agent = Agent(name="Email Manager",
                       instructions=email_manager_instructions,
                       tools=[subject_tool, html_tool, send_html_email],
@@ -120,6 +123,7 @@ sales_manager = Agent(name="Sales Manager",
                       handoffs=[emailer_agent],
                       model=llm_model)
 
+# --------------------- main ----------------------------------
 async def main(query: str):
     with trace("Automated SDR"):
         result = await Runner.run(sales_manager, query)
