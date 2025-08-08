@@ -1,0 +1,22 @@
+This project implements an **end-to-end, automated cold-email workflow** using a small team of AI agents plus SendGrid. At a high level, it:
+
+* **Creates three AI email drafts** in distinct tones (professional, witty, concise).
+* **Evaluates and selects the single best draft** — strictly one winner.
+* **Generates a strong subject line** for the winning draft.
+* **Converts the text email into clean HTML** for better deliverability and presentation.
+* **Sends the final HTML email via SendGrid**, using verified sender/recipient details.
+* **Runs the entire flow automatically** under a single “Sales Manager” orchestrator, with an “Email Manager” handling formatting and sending.
+* **Enforces guardrails**: drafts must come from the designated tools; exactly one draft is handed off and sent.
+* **Captures a trace of the run** for simple observability and prints the final result.
+
+## Workflow at a Glance
+
+1. **Orchestrate**: A **Sales Manager** agent kicks off the process from a single prompt (the send request).
+2. **Draft**: It calls three specialized sales agents to produce three different cold-email drafts.
+3. **Select**: It reviews those drafts and chooses **one** best-performing email.
+4. **Format & Send**: The chosen draft is handed to an **Email Manager**, which:
+
+   * Writes a **subject line**,
+   * Converts the body to **HTML**, and
+   * **Sends** the email via **SendGrid**.
+5. **Report**: The system returns the outcome (success/error), providing a concise run result.
